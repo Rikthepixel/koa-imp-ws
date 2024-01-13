@@ -7,7 +7,7 @@ import makeDebug from "debug";
 const debug = makeDebug("koa-imp-ws");
 
 export type WebSocketContext = {
-  ws: () => Promise<WebSocket>;
+  ws?: () => Promise<WebSocket>;
   wsServer?: WebSocket.Server;
 };
 
