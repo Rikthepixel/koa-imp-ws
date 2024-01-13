@@ -1,47 +1,63 @@
 {
-  "name": "koa-easy-ws",
-  "version": "2.1.0",
-  "description": "Simple Koa middleware for websocket handling",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "name": "koa-imp-ws",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "A TS fork of koa-easy-ws, a simple Koa middleware for websocket handling",
+  "main": "./lib/index.js",
+  "module": "./lib/index.mjs",
+  "types": "./lib/index.d.ts",
   "scripts": {
-    "test": "standard && mocha"
+    "build": "tsup"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/b3nsn0w/koa-easy-ws.git"
+  "engines": {
+    "node": ">=17"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "lib",
+    "LICENSE",
+    "package.json",
+    "README.md"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./lib/index.mjs",
+      "require": "./lib/index.js",
+      "types": "./lib//index.d.ts"
+    }
   },
   "keywords": [
     "koa",
     "websocket",
     "ws"
   ],
-  "author": "Ben Snow <balintbence97@gmail.com>",
-  "license": "MIT",
+  "author": "Rik den Breejen",
+  "homepage": "https://github.com/Rikthepixel/koa-imp-ws#readme",
   "bugs": {
-    "url": "https://github.com/b3nsn0w/koa-easy-ws/issues"
+    "url": "https://github.com/Rikthepixel/koa-imp-ws/issues"
   },
-  "homepage": "https://github.com/b3nsn0w/koa-easy-ws#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rikthepixel/koa-imp-ws.git"
+  },
   "dependencies": {
-    "debug": "^4.1.1"
+    "debug": "^4.3.4"
   },
   "peerDependencies": {
     "koa": ">=2",
     "ws": ">=8"
   },
   "devDependencies": {
-    "chai": "^4.1.2",
+    "@types/debug": "^4.1.12",
+    "@types/koa": "^2.14.0",
+    "@types/node": "^20.11.0",
+    "@types/ws": "^8.5.10",
     "koa": "^2.13.4",
-    "koa-router": "^7.4.0",
-    "mocha": "^9.2.2",
-    "pre-commit": "^1.2.2",
-    "promise": "^8.0.3",
-    "request": "^2.87.0",
-    "request-promise": "^4.2.4",
-    "standard": "^16.0.4",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
     "ws": "^8.5.0"
-  },
-  "pre-commit": [
-    "test"
-  ]
+  }
 }
