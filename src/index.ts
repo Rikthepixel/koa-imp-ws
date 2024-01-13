@@ -7,7 +7,29 @@ import makeDebug from "debug";
 const debug = makeDebug("koa-imp-ws");
 
 export type WebSocketContext = {
-  ws?: () => Promise<WebSocket>;
+  /** @async @function
+   * @description
+   * This function checks if the upgrade headers are valid.
+   * It returns the the `WebSocket` if the upgrade was successful and `null` if it wasn't
+   *
+   * @example
+   * const socket = await ctx.ws()
+   * if (!socket) {
+   *    ctx.status = 400
+   *    ctx.body = "This is a websocket endpoint"
+   * }
+   *
+   * // Do stuff with socket
+   *
+   * @returns `Promise<null>` if the upgrade header is invalid
+   * @returns `Promise<WebSocket>` if the upgrade headers are valid
+   */
+  ws(): Promise<WebSocket | null>;
+  /**
+   * Exposed websocket server
+   *
+   * If the server didn't (successfully) upgrade the connection, this will be undefined.
+   */
   wsServer?: WebSocket.Server;
 };
 
@@ -21,6 +43,24 @@ export type WebSocketMiddlwareOptions = {
 
 const serversPatched = new WeakSet();
 
+/**
+ * Creates a websocket server and upgrades a connection if `ctx.ws()` is called.
+ *
+ * It can be applied multiple times, the latest one will override the
+ * @example
+ * const app = new Koa()
+ *  .use(websocket()) // Top level websocket
+ *
+ * app.use((ctx) => {
+ *   const socket = ctx.ws() // Top level websocket
+ * })
+ *
+ * app
+ *  .use(websocket()) // Overrides top level
+ *  .use((ctx) => {
+ *     const socket = ctx.ws() // Override websocket
+ *  })
+ */
 function websocket(
   optionsOrHttpServer?: WebSocketMiddlwareOptions | http.Server,
 ): (
@@ -67,6 +107,9 @@ function websocket(
         .indexOf("websocket") !== -1;
 
     if (!shouldUpgradeWs) {
+      ctx.ws = () => Promise.resolve(null);
+      ctx.wsServer = undefined;
+
       return await next();
     }
 

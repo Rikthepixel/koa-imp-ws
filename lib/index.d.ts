@@ -3,7 +3,7 @@ import WebSocket, { ServerOptions } from 'ws';
 import Koa, { Middleware } from 'koa';
 
 type WebSocketContext = {
-    ws: () => Promise<WebSocket>;
+    ws(): Promise<WebSocket | null>;
     wsServer?: WebSocket.Server;
 };
 type WebSocketMiddleware = Middleware<object, WebSocketContext>;
