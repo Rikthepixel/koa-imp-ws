@@ -1,7 +1,14 @@
 Simple, easy to use, composable middleware for websocket handling in Koa
 
 _Note:_
-This is a fork of [koa-easy-ws](https://github.com/b3nsn0w/koa-easy-ws), but rewritten in TypeScript. The middleware has been simplified to always expose the server on `ctx.wsServer` and the socket on `ctx.ws()`. Make sure to read is README well, since it has been adjusted for rewrite
+This is a fork of [koa-easy-ws](https://github.com/b3nsn0w/koa-easy-ws), but rewritten in TypeScript. The middleware has been simplified to always expose the server on `ctx.wsServer` and the socket on `ctx.ws()`.
+
+This is _NOT_ a drop-in replacement for `koa-easy-ws`. Make sure to read is README well, since it has been adjusted for rewrite. The internals of this library are still the same and effectively functions in the same way, however some of the functions have been changed.
+
+# Requirements
+
+- koa >= 2
+- ws >= 8
 
 # Usage
 
@@ -13,10 +20,10 @@ const app = new Koa();
 
 app.use(websocket());
 app.use(async (ctx, next) => {
-  // check if the current request is websocket
-  if (ctx.ws) {
-    const ws = await ctx.ws(); // retrieve socket
+  const socket = await ctx.ws(); // Retrieve socket
 
+  // Check if the connection upgrade was successful
+  if (socket) {
     // now you have a ws instance, you can use it as you see fit
     return ws.send("hello there");
   }
@@ -55,42 +62,40 @@ app.use(websocket()).use(router.routes()).use(router.allowedMethods());
 
 // App websocket
 router.get("Obiwan", "/obiwan", async (ctx, next) => {
-  if (ctx.ws) {
-    const ws = await ctx.ws();
-    ws.send("chancellor palpatine is evil");
+  const socket = await ctx.ws();
+  if (socket) {
+    socket.send("chancellor palpatine is evil");
   }
 });
 
 router.get("Anakin", "/anakin", async (ctx, next) => {
-  if (ctx.ws) {
-    const ws = await ctx.ws();
-    ws.send("the jedi are evil");
-    ws.send("404");
+  const socket = await ctx.ws();
+  if (socket) {
+    socket.send("the jedi are evil");
+    socket.send("404");
   }
 });
 
 // Route specific websocket
 router.get(
-  "Jar Jar",
+  "Jar Jar is evil",
   "/jar-jar",
   authorize(), // Route specific middleware will take effect
   websocket(), // Will override the `ctx.ws` and `ctx.wsServer` set at the toplevel middleware
   async (ctx, next) => {
-    if (ctx.ws) {
-      const ws = await ctx.ws();
-      ws.send("Me-sa was mastermind all-along");
+    const socket = await ctx.ws();
+    if (socket) {
+      socket.send("Me-sa was mastermind all-along");
     }
   },
 );
 ```
 
-This gives you access to the [ws][ws] server object, allowing to pass down custom listeners, connection validators, etc.
-
-Alternatively, you can pass options to the underlying [ws][ws] server as part of the options object:
+You can pass options to the underlying websocket server as part of the options object:
 
 ```javascript
 app.use(
-  websocket("ws", {
+  websocket({
     wsOptions: {
       clientTracking: false,
       maxPayload: 69420,
@@ -99,9 +104,9 @@ app.use(
 );
 ```
 
-The `wsOptions` object will be forwarded to [ws][ws] unchanged, you can check [its documentation][ws] for the available options.
+The `wsOptions` object will be forwarded to `WebSocket.Server` unchanged, you can check [its documentation][ws] for the available options.
 
-If needed, you can uuse the websocket server exposed on `ctx.wsServer`
+If needed, you can use the websocket server exposed on `ctx.wsServer`
 
 ```javascript
 const Koa = require("koa");
@@ -112,15 +117,14 @@ const app = new Koa();
 app.use(websocket());
 
 app.use(async (ctx, next) => {
-  if (ctx.ws) {
+  const socket = await ctx.ws();
+  if (socket) {
     console.log("found the server", ctx.wsServer);
   }
 });
 ```
 
 From here, the sky is the limit, unless you work for SpaceX.
-
-# Changes
 
 # Special usage for Node 9 or earlier
 
